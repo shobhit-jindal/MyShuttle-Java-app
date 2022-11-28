@@ -1,0 +1,31 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- main
+ 
+pool:
+vmImage: ubuntu-latest
+ 
+steps:
+
+- task: Maven@3
+displayName: 'Maven pom.xml'
+inputs:
+options: '-DskipITs --settings ./maven/settings.xml'
+
+- task: CopyFiles@2
+  inputs:
+    SourceFolder: '$(build.sourcesdirectory)'
+    Contents: |
+      **/target/*.war
+      *.sql
+    TargetFolder: '$(build.artifactstagingdirectory)'
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    ArtifactName: 'drop'
+    publishLocation: 'Container'
